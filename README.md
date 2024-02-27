@@ -80,11 +80,10 @@ GitHub. https://github.com/Prasannanatu/sfm and nerf.git
 
 ## Tags
 
-- Computer Graphics
 - Comupter Vision
 - 3D Reconstruction
 - Neural Radiance Fields
 - Structure from Motion
-- View Synthesis 
+ 
 
 
