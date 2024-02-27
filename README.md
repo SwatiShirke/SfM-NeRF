@@ -1,13 +1,6 @@
 
 # Structure from Motion (SfM) and Neural Radiance Fields (NeRF) Project
 
-
-| ![image1](./NeRF/test_gif.gif) | ![image2](./sfm_p/Phase1/outputs/Registered_camera_poses_with_nonlinear_PnP2.png) |
-|:--:|:---:|
-| NeRF | SFM |
-
-
-
 This repository contains the academic project for 3D scene reconstruction from multiple images with different viewing angles using Computer Vision techniques called Neural Radiance Fields (NeRF) and Structure from Motion (SfM). The project was conducted as part of the course Computer Vision-RBE-549 during the spring semester of 2024. The official university course project page can be found [here](https://pear.wpi.edu/teaching/rbe549/spring2024.html).
 
 
