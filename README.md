@@ -32,7 +32,7 @@ The repository is structured as follows:
 - `/Phase1`: This folder contains all the source code for the Structure from Motion.
 - `/Phase2`: This folder will hold all the source code for the Neural Radiance Fields (NeRF).
 - `/report`: This folder contains the academic report documenting the project, including the methodology, experimental results, and conclusions.
-- `/sfm_p/Data`: This folder contains the data provided on the course project page 
+- `/p3Data`: This folder contains the data provided on the course project page 
 
 ## Technologies used
 The project utilizes the following technologies:
