@@ -1,50 +1,85 @@
-"""
-This is RANSAC implementation for PnP algorithm 
-"""
-import random
 import numpy as np
+import random
+import cv2
+import ipdb
+import matplotlib.pyplot as plt
+from scipy.linalg import rq
 from LinearPnP import *
 
-def PnPRANSAC( x_img_list, x_real_list, K_mat, max_iteration, err_threshold,n_point):
+def PnP_RANSAC(K, x_2D, x_3D, iterations, threshold):
 
-    max_feature_inliers = []
-    max_real_inliers = []
+    camera_pose = None
+    num_points = x_2D.shape[0]
+    u = x_2D[:, 0]
+    v = x_2D[:, 1]
 
-    for iteration in range(max_iteration):
-        index_list = random.sample( range(len(x_img_list)) ,n_point)
-        x_img_pt_list  = np.array( x_img_list[index_list])        
-        x_real_pt_list = np.array(x_real_list [index_list ])
-        R, C = LinearPnP(x_img_pt_list, x_real_pt_list, K_mat)
-        C = C.reshape((3,1))
-        T = np.dot(-R, C)
-        R_T = np.concatenate((R, T), axis=1)        
-        p_mat = np.dot(K_mat,  R_T).reshape(3,4)       
-        
-        p1, p2, p3 = p_mat
-        feature_inliers_list = []
-        real_inliers_list = []
-        for j in range(len(x_img_list)):
-            u, v = x_img_list[j,0], x_img_list[j,1]
-            error = (u - np.dot(p1.T, x_real_list[j])/ np.dot(p3.T, x_real_list[j]))**2 + (v - np.dot(p2.T, x_real_list[j])/ np.dot(p3.T, x_real_list[j]))**2
+    ones = np.ones((x_3D.shape[0], 1))
+    world_points_homogen = np.concatenate((x_3D, ones), axis=1)
 
-            if error < err_threshold:
-                feature_inliers_list.append( x_img_list[j] )
-                real_inliers_list.append( x_real_list[j] )
+    
+    final_matches = []
+    Prrdddd = []
 
-        if len(feature_inliers_list) > len(max_feature_inliers):
-            max_feature_inliers = feature_inliers_list
-            max_real_inliers = real_inliers_list
+    for index in range(iterations):                                       
+        count = 0 
+        filtered_matches = []
 
-    ##re-estimate roattion  matrix and camera centre vector 
-    R, C = LinearPnP(x_img_pt_list, x_real_pt_list, K_mat)
+        random_indeces = random.sample(range(num_points - 1), 6)
 
-    return R, C 
+        random_2d_points = x_2D[random_indeces, :]
+        random_3d_points = x_3D[random_indeces, :]
 
+        Projection_left = linear_PnP(K, random_2d_points, random_3d_points)
+        proj = np.matmul(Projection_left, world_points_homogen.T)
+        proj = proj / proj[-1]
+        proj = proj.T
 
-if __name__ == "__main__":
-    x_pt = np.array([[1,2], [3,4]])
-    x_real = np.array([[5,6,1,1], [7,8,1,1]])
-    K_mat = np.array([[1,6,3],[4,5,6],[7,8,9]]).reshape(3,3)
-    R, C = PnPRANSAC(x_pt, x_real, K_mat, 1, 0.5,2)
-    print(R)
-    print(C)
+        for i in range(len(proj)):
+            error = np.sqrt((u[i] - proj[i][0])**2 + (v[i] - proj[i][1])**2)
+            if error < threshold:
+                count += 1
+                filtered_matches.append(i)
+
+        if len(final_matches) < count:
+            final_matches = filtered_matches
+            count = len(filtered_matches)
+            Prrdddd.append(Projection_left)
+
+    print("count", count) 
+
+    feature_inliers = x_2D[final_matches]
+    world_point_inliers = x_3D[final_matches]
+
+    Prr = linear_PnP(K, feature_inliers, world_point_inliers)
+    proj = np.matmul(Prr, world_points_homogen.T)
+    proj = proj / proj[-1]
+    proj = proj.T
+
+    for i in range(len(proj)):
+        error = np.sqrt((u[i] - proj[i][0])**2 + (v[i] - proj[i][1])**2)
+    d1= np.array([0,0,0])
+    Kr=np.append(K,d1.reshape((3, 1)) , axis=1)
+    R_camera = Prr[0:3, 0:3]
+    K_inv = np.linalg.inv(K)
+    R = K_inv @ R_camera
+
+    U_R, D_R, V_T_R = np.linalg.svd(R)                 
+    R = U_R @ V_T_R                                   
+
+    lamda = D_R[0]                              
+
+    t = Prr[:, 3]
+    T = K_inv @ t / lamda
+
+    R_det = np.linalg.det(R)
+
+    if R_det < 0:
+        R = -R
+        T = -T
+
+    C = -R.T @ T
+
+    camera_pose = [ C , R]
+
+    return camera_pose,[Kr,Prr]
+
