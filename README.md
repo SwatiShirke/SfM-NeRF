@@ -60,7 +60,7 @@ To run the project locally, follow these steps:
 1. Clone the repository:
 
 ```shell
-git clone https://github.com/shambhurajmane/SfM-and-NeRF.git
+git clone https://github.com/SwatiShirke/SfM-NeRF.git
  ```
  
 Install the required dependencies. You can use the provided requirements.txt file to install the necessary packages. Run the following command:
