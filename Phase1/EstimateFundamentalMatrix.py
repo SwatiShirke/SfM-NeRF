@@ -10,7 +10,7 @@ def get_fundamental_matrix(left_points, right_points):
     ul, vl, ur, vr = left_points[:, 0], left_points[:, 1], right_points[:, 0], right_points[:, 1]
 
     A = np.asarray([ul * ur, vl * ur, ur, ul * vr, vl * vr, vr, ul, vl, vec_one])  
-    #A = np.transpose(A)                                
+    A = np.transpose(A)   ## make it n by 9                              
 
     # Perform SVD
     U, S, V = np.linalg.svd(A)                        
