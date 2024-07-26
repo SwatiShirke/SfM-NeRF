@@ -10,11 +10,11 @@ def get_fundamental_matrix(left_points, right_points):
     ul, vl, ur, vr = left_points[:, 0], left_points[:, 1], right_points[:, 0], right_points[:, 1]
 
     A = np.asarray([ul * ur, vl * ur, ur, ul * vr, vl * vr, vr, ul, vl, vec_one])  
-    A = np.transpose(A)                                
+    #A = np.transpose(A)                                
 
     # Perform SVD
     U, S, V = np.linalg.svd(A)                        
-    f = V[-1, :]                                     
+    f = V.T[:,-1 ]                                     -1
 
     f = f.reshape(3, 3)                               
 
@@ -22,6 +22,7 @@ def get_fundamental_matrix(left_points, right_points):
 
     S[2] = 0.0                                   
     sigma_mat = np.diag(S)                           
-    F = np.matmul(U,np.matmul(sigma_mat,V))              
+    F = np.matmul(U,np.matmul(sigma_mat,V))  
+    F = F / (F[2,2])
 
     return F
